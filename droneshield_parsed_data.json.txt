@@ -1,0 +1,221 @@
+{
+  "company": {
+    "name": "DroneShield",
+    "stock_code": "ASX:DRO",
+    "tagline": "AI-Powered Counter-Drone Solutions",
+    "description": "DroneShield is the world-leading innovator in counter-drone solutions.",
+    "mission": "DroneShield delivers AI-powered, multi-mission solutions that ensure decisive advantages against the threats of unmanned systems.",
+    "headquarters": [
+      "Sydney, Australia",
+      "Warrenton, Virginia"
+    ],
+    "specialization": "Counter-UAS technology leveraging RF sensing, AI, sensor fusion, and electronic warfare",
+    "stats": {
+      "units_sold": "Not specified",
+      "in_country_partners": "Not specified",
+      "years_of_innovation": "Not specified",
+      "government_agencies": "34+"
+    }
+  },
+  "products": {
+    "dismounted": [
+      {
+        "name": "RfPatrol Mk2",
+        "description": "A highly versatile, completely passive non-emitting wearable UAS detection device."
+      },
+      {
+        "name": "DroneGun Mk4",
+        "description": "Handheld counter-drone device"
+      },
+      {
+        "name": "Immediate Response Kit (IRK)",
+        "description": "Portable counter-drone solution"
+      },
+      {
+        "name": "DroneGun Tactical",
+        "description": "Tactical anti-drone rifle"
+      }
+    ],
+    "on_the_move": [
+      {
+        "name": "DroneSentry-X Mk2",
+        "description": "Designed for rapid deployment and ease of use, on-the-move ensures swift threat detection and defense wherever the mission demands."
+      },
+      {
+        "name": "Expeditionary Fixed Site (EFS) Kit",
+        "description": "Mobile deployment kit for counter-drone operations"
+      }
+    ],
+    "fixed_site": [
+      {
+        "name": "DroneSentry",
+        "description": "Modular and scalable defense solution engineered for comprehensive threat management."
+      },
+      {
+        "name": "SentryCiv",
+        "description": "Civilian counter-drone solution"
+      }
+    ],
+    "software": [
+      {
+        "name": "DroneSentry-C2",
+        "description": "Counter-UAS software powered by superior AI and data precision. Operators can detect, track, and defeat threats with a simple to use interface, providing true situational awareness for a decisive edge."
+      },
+      {
+        "name": "DroneSentry-C2 Enterprise",
+        "description": "Enterprise-level command and control system"
+      },
+      {
+        "name": "DroneSentry-C2 Tactical",
+        "description": "Tactical command and control system"
+      },
+      {
+        "name": "DroneOptID",
+        "description": "AI identification system"
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "name": "RFAI",
+      "description": "Radio Frequency Artificial Intelligence"
+    },
+    {
+      "name": "RFAI-ATK",
+      "description": "RF AI Attack capabilities"
+    },
+    {
+      "name": "Sensor Fusion AI",
+      "description": "Advanced sensor integration with AI"
+    },
+    {
+      "name": "Electronic Warfare",
+      "description": "Our EW solutions ensure operational superiority against evolving threats."
+    },
+    {
+      "name": "AI Identification",
+      "description": "Artificial intelligence for threat identification"
+    },
+    {
+      "name": "Edge Computing",
+      "description": "On-device processing capabilities"
+    },
+    {
+      "name": "Product Integration",
+      "description": "Integration with existing systems"
+    },
+    {
+      "name": "Advanced Training Services",
+      "description": "VR and specialized training programs"
+    }
+  ],
+  "sectors": [
+    {
+      "name": "Military",
+      "description": "Multi-Mission CUxS Solutions for Modern Warfare."
+    },
+    {
+      "name": "Critical Infrastructure",
+      "description": "Protection for essential facilities"
+    },
+    {
+      "name": "Public Safety",
+      "description": "Law enforcement and first responder solutions"
+    },
+    {
+      "name": "Border Security",
+      "description": "Border patrol and monitoring"
+    },
+    {
+      "name": "Aviation Facilities",
+      "description": "Airport and airfield protection"
+    },
+    {
+      "name": "Correctional Facilities",
+      "description": "Prison and detention center security"
+    },
+    {
+      "name": "Corporations",
+      "description": "Corporate and enterprise security"
+    },
+    {
+      "name": "Events & Stadiums",
+      "description": "Event and venue protection"
+    },
+    {
+      "name": "Executive Protection",
+      "description": "VIP and executive security"
+    },
+    {
+      "name": "Government Agencies",
+      "description": "Government facility protection"
+    },
+    {
+      "name": "Infrastructure & Energy",
+      "description": "Energy and utility protection"
+    },
+    {
+      "name": "Maritime Security",
+      "description": "Naval and maritime vessel protection"
+    },
+    {
+      "name": "Oil, Gas & Mining",
+      "description": "Resource sector security"
+    }
+  ],
+  "resources": {
+    "categories": [
+      "Press Releases",
+      "News",
+      "Industry Insights",
+      "UAS incidents",
+      "Videos & Media",
+      "Downloads & Resources"
+    ],
+    "factbook": {
+      "name": "CUAS Factbook",
+      "description": "Essential insights on counter-drone solutions"
+    },
+    "solutions_guide": {
+      "name": "Solutions Guide",
+      "description": "Comprehensive product and solution guide"
+    }
+  },
+  "contact": {
+    "website": "https://www.droneshield.com",
+    "social_media": {
+      "linkedin": "https://linkedin.com/company/droneshield",
+      "twitter": "https://x.com/DroneShield"
+    },
+    "support": [
+      "Global Product Support",
+      "U.S. Product Support",
+      "Sales or General Enquiries",
+      "Media Enquiries",
+      "Investor Enquiries"
+    ]
+  },
+  "recent_news": [
+    {
+      "title": "Closing the Gap: Why Airports Need Authority to Act Against Drone Threats",
+      "date": "Oct 6, 2025",
+      "category": "Insights"
+    },
+    {
+      "title": "Layered Defence: The Power and Flexibility of Multi-Sensor Integration",
+      "date": "Oct 5, 2025",
+      "category": "Insights"
+    },
+    {
+      "title": "DroneShield's SentryCiv – An Affordable Civilian Counter-Drone Solution",
+      "date": "Sep 23, 2025",
+      "category": "Insights"
+    },
+    {
+      "title": "DroneShield's Journey: From Australian Start-Up to Global Counter-UAS Leader",
+      "date": "Sep 19, 2025",
+      "category": "Insights"
+    }
+  ],
+  "copyright": "© 2025 DroneShield Ltd | ALL RIGHTS RESERVED"
+}
