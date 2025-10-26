@@ -36,7 +36,7 @@ st.markdown("""
             100% { box-shadow: 0 0 25px rgba(255,122,0,0.4); transform: scale(1.00); }
         }
 
-        /* --- Logo Animation --- */
+        /* --- Animated Logo --- */
         .logo-wrapper {
             display: flex; justify-content: center; align-items: center;
             flex-direction: column; margin-bottom: -10px;
@@ -45,12 +45,16 @@ st.markdown("""
             width: 140px;
             transition: all 0.6s ease-in-out;
             filter: drop-shadow(0 0 25px rgba(255,122,0,0.7));
-            animation: glowPulse 4s ease-in-out infinite;
+            animation: logoFloat 4s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
         }
         @keyframes glowPulse {
-            0% { filter: drop-shadow(0 0 20px rgba(255,122,0,0.6)); transform: scale(1.00); }
-            50% { filter: drop-shadow(0 0 45px rgba(255,180,80,1)); transform: scale(1.05); }
-            100% { filter: drop-shadow(0 0 20px rgba(255,122,0,0.6)); transform: scale(1.00); }
+            0% { filter: drop-shadow(0 0 15px rgba(255,122,0,0.6)); }
+            50% { filter: drop-shadow(0 0 45px rgba(255,180,80,1)); }
+            100% { filter: drop-shadow(0 0 15px rgba(255,122,0,0.6)); }
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) scale(1.00); }
+            50% { transform: translateY(-6px) scale(1.05); }
         }
 
         /* --- Logo Reflection --- */
