@@ -1,15 +1,16 @@
 import streamlit as st
-import os, json, base64, textwrap
+import os, json, base64, textwrap, numpy as np
 from openai import OpenAI
-from sentence_transformers import SentenceTransformer
 
 st.set_page_config(page_title="Tim's DroneShield Chatbot", page_icon="🛡️")
 
 # ---------- UI STYLING ----------
 st.markdown("""
     <style>
-        .stApp { background: radial-gradient(circle at top center, rgba(255,122,0,0.9) 0%, #0D0D0D 90%);
-                 color: white; text-align: center; }
+        .stApp {
+            background: radial-gradient(circle at top center, rgba(255,122,0,0.9) 0%, #0D0D0D 90%);
+            color: white; text-align: center;
+        }
         .main-title {
             background: linear-gradient(90deg, rgba(255,122,0,1) 0%, rgba(255,102,0,0.9) 100%);
             box-shadow: 0 0 35px rgba(255,122,0,0.6);
@@ -58,22 +59,18 @@ for item in context_data:
         documents.append(str(item))
         metas.append({"url": "", "title": ""})
 
-# ---------- LOAD EMBEDDING MODEL (SAFE MODE) ----------
-try:
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu", trust_remote_code=True)
-    model.eval()  # ensure weights stay frozen
-except Exception as e:
-    st.markdown(f"<div class='error-box'>⚠️ Embedding model error: {e}</div>", unsafe_allow_html=True)
-    model = None
+# ---------- LIGHTWEIGHT EMBEDDING (NO TORCH) ----------
+import hashlib
+
+def cheap_embed(text):
+    """Lightweight embedding using hashing (avoids torch)."""
+    hash_val = hashlib.sha256(text.encode("utf-8")).digest()
+    return np.array([b / 255.0 for b in hash_val[:64]])
 
 def retrieve(query, k=4):
-    if not model:
-        return []
-    from numpy import dot
-    from numpy.linalg import norm
-    q_emb = model.encode(query, convert_to_numpy=True)
-    doc_embs = model.encode(documents, convert_to_numpy=True)
-    sims = [dot(q_emb, d) / (norm(q_emb) * norm(d)) for d in doc_embs]
+    q_emb = cheap_embed(query)
+    doc_embs = [cheap_embed(d) for d in documents]
+    sims = [np.dot(q_emb, d) / (np.linalg.norm(q_emb) * np.linalg.norm(d)) for d in doc_embs]
     top_k = sorted(range(len(sims)), key=lambda i: sims[i], reverse=True)[:k]
     return [(documents[i], metas[i]) for i in top_k]
 
