@@ -6,6 +6,10 @@ from openai import OpenAI
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Tim's DroneShield Chatbot", page_icon="🛡️")
 
+# ---------- SAFETY: FORCE CPU ----------
+torch.set_default_device("cpu")
+torch.set_default_dtype(torch.float32)
+
 # ---------- STYLING ----------
 st.markdown("""
     <style>
@@ -24,14 +28,9 @@ st.markdown("""
             display: inline-block;
             padding: 12px 40px;
             margin-top: 10px;
-            transition: all 0.4s ease-in-out;
         }
         .title-grey { color: #bfbfbf; font-weight: 600; }
         .title-black { color: #333333; font-weight: 500; }
-        .main-title:hover {
-            box-shadow: 0 0 50px rgba(255,150,50,0.9);
-            transform: scale(1.03);
-        }
         .caption {
             color: #e0e0e0;
             font-size: 15px;
@@ -45,64 +44,33 @@ st.markdown("""
             text-align: left;
             box-shadow: inset 0px 0px 15px rgba(255,122,0,0.25), 0 0 20px rgba(0,0,0,0.6);
         }
-        .logo-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            margin-bottom: -10px;
-        }
-        .logo-wrapper img {
-            width: 140px;
-            transition: all 0.5s ease-in-out;
-            filter: drop-shadow(0 0 25px rgba(255,122,0,0.7));
-        }
+        .logo-wrapper { display: flex; justify-content: center; align-items: center; flex-direction: column; margin-bottom: -10px; }
+        .logo-wrapper img { width: 140px; transition: all 0.5s ease-in-out; filter: drop-shadow(0 0 25px rgba(255,122,0,0.7)); }
         @keyframes glowPulse {
             0% { filter: drop-shadow(0 0 20px rgba(255,122,0,0.6)); transform: scale(1.00); }
             50% { filter: drop-shadow(0 0 45px rgba(255,180,80,1)); transform: scale(1.05); }
             100% { filter: drop-shadow(0 0 20px rgba(255,122,0,0.6)); transform: scale(1.00); }
         }
-        .logo-wrapper img:hover {
-            animation: glowPulse 2.5s ease-in-out infinite;
-        }
+        .logo-wrapper img:hover { animation: glowPulse 2.5s ease-in-out infinite; }
         .logo-reflection {
-            width: 120px;
-            height: 18px;
-            border-radius: 50%;
+            width: 120px; height: 18px; border-radius: 50%;
             background: radial-gradient(ellipse at center, rgba(255,122,0,0.35) 0%, rgba(255,122,0,0) 70%);
-            filter: blur(8px);
-            margin-top: -5px;
-            opacity: 0.7;
-            transition: all 0.5s ease;
-        }
-        .logo-wrapper:hover .logo-reflection {
-            opacity: 0.45;
-            transform: translateY(3px) scale(1.1);
+            filter: blur(8px); margin-top: -5px; opacity: 0.7;
         }
         .footer {
-            font-size: 13px;
-            color: #d9d9d9;
-            opacity: 0.8;
-            margin-top: 40px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 10px;
+            font-size: 13px; color: #d9d9d9; opacity: 0.8; margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;
         }
         .error-box {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255,0,0,0.4);
-            color: #ffaaaa;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px auto;
-            width: 70%;
+            background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255,0,0,0.4);
+            color: #ffaaaa; padding: 10px; border-radius: 6px; margin: 10px auto; width: 70%;
         }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------- LOGO ----------
-logo_path = "droneshield_logo.png"
-if os.path.exists(logo_path):
-    encoded_logo = base64.b64encode(open(logo_path, "rb").read()).decode()
+if os.path.exists("droneshield_logo.png"):
+    encoded_logo = base64.b64encode(open("droneshield_logo.png", "rb").read()).decode()
     st.markdown(f"""
         <div class="logo-wrapper">
             <img src="data:image/png;base64,{encoded_logo}" />
@@ -113,10 +81,7 @@ else:
     st.markdown("<div class='error-box'>⚠️ Logo not found — please upload 'droneshield_logo.png'.</div>", unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:-10px'></div>", unsafe_allow_html=True)
-st.markdown(
-    "<div class='main-title'>Tim's <span class='title-grey'>Drone</span><span class='title-black'>Shield</span> Chatbot</div>",
-    unsafe_allow_html=True
-)
+st.markdown("<div class='main-title'>Tim's <span class='title-grey'>Drone</span><span class='title-black'>Shield</span> Chatbot</div>", unsafe_allow_html=True)
 st.markdown("<p class='caption'>Built for clarity and precision — answers grounded in verified DroneShield content.</p>", unsafe_allow_html=True)
 
 # ---------- LOAD CONTEXT ----------
@@ -135,10 +100,10 @@ else:
     documents = [str(item) for item in context_data]
     metas = [{"url": "", "title": ""} for _ in context_data]
 
-# ---------- SAFE MODEL LOAD (FORCE CPU, NO META DEVICE) ----------
+# ---------- FIXED EMBEDDING MODEL LOAD ----------
 try:
-    torch.set_default_device("cpu")
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu")
+    model.to_empty(device="cpu")  # ✅ ensure no meta tensors remain
 except Exception as e:
     st.markdown(f"<div class='error-box'>⚠️ Error loading embedding model: {e}</div>", unsafe_allow_html=True)
     st.stop()
@@ -153,7 +118,7 @@ def retrieve(query, k=4):
 # ---------- OPENAI CLIENT ----------
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    st.markdown("<div class='error-box'>⚠️ Missing OpenAI API key. Please set it as an environment variable named 'OPENAI_API_KEY'.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='error-box'>⚠️ Missing OpenAI API key. Please set it as 'OPENAI_API_KEY'.</div>", unsafe_allow_html=True)
 else:
     openai_client = OpenAI(api_key=api_key)
 
