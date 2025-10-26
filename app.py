@@ -19,7 +19,6 @@ st.markdown("""
             text-align: center;
         }
 
-        /* --- Title Glow --- */
         .main-title {
             background: linear-gradient(90deg, rgba(255,122,0,1) 0%, rgba(255,102,0,0.9) 100%);
             box-shadow: 0 0 35px rgba(255,122,0,0.6);
@@ -32,7 +31,6 @@ st.markdown("""
             margin-top: 10px;
             transition: all 0.4s ease-in-out;
         }
-
         .title-grey { color: #bfbfbf; font-weight: 600; }
         .title-black { color: #333333; font-weight: 500; }
 
@@ -83,16 +81,30 @@ st.markdown("<div class='main-title'>Tim's <span class='title-grey'>Drone</span>
 st.markdown("<p class='caption'>Built for clarity and precision! Answers grounded in verified content from droneshield.com.</p>", unsafe_allow_html=True)
 
 # ---------- LOAD CONTEXT ----------
-with open("droneshield_parsed_data.json.txt", "r", encoding="utf-8") as f:
-    context_data = json.load(f)
+try:
+    with open("droneshield_parsed_data.json.txt", "r", encoding="utf-8") as f:
+        context_data = json.load(f)
 
-documents = [item.get("content", "") for item in context_data]
-metas = [{"url": item.get("url", ""), "title": item.get("title", "")} for item in context_data]
+    # If the JSON file contains a single string (stringified JSON), parse it again
+    if isinstance(context_data, str):
+        context_data = json.loads(context_data)
+
+    # Ensure it’s a list
+    if not isinstance(context_data, list):
+        context_data = [context_data]
+
+    documents = [item.get("content", "") for item in context_data if isinstance(item, dict)]
+    metas = [{"url": item.get("url", ""), "title": item.get("title", "")} for item in context_data if isinstance(item, dict)]
+except Exception as e:
+    st.error(f"⚠️ Error loading context file: {e}")
+    documents, metas = [], []
 
 # ---------- EMBEDDING MODEL ----------
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 def retrieve(query, k=4):
+    if not documents:
+        return []
     query_emb = model.encode(query)
     doc_embs = model.encode(documents)
     scores = np.dot(doc_embs, query_emb)
@@ -130,7 +142,6 @@ def answer(query):
     except Exception as e:
         text = f"⚠️ GPT-4 error: {e}\n\nExtractive fallback:\n\n" + textwrap.fill(context[:1000], 110)
 
-    # Deduplicate sources
     sources, seen = [], set()
     for h in hits:
         url = h[1].get("url", "")
