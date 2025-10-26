@@ -36,25 +36,19 @@ st.markdown("""
             100% { box-shadow: 0 0 25px rgba(255,122,0,0.4); transform: scale(1.00); }
         }
 
-        /* --- Animated Logo --- */
+        /* --- Hover-Animated Logo --- */
         .logo-wrapper {
             display: flex; justify-content: center; align-items: center;
             flex-direction: column; margin-bottom: -10px;
         }
         .logo-wrapper img {
             width: 140px;
-            transition: all 0.6s ease-in-out;
-            filter: drop-shadow(0 0 25px rgba(255,122,0,0.7));
-            animation: logoFloat 4s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
+            transition: all 0.5s ease-in-out;
+            filter: drop-shadow(0 0 25px rgba(255,122,0,0.5));
         }
-        @keyframes glowPulse {
-            0% { filter: drop-shadow(0 0 15px rgba(255,122,0,0.6)); }
-            50% { filter: drop-shadow(0 0 45px rgba(255,180,80,1)); }
-            100% { filter: drop-shadow(0 0 15px rgba(255,122,0,0.6)); }
-        }
-        @keyframes logoFloat {
-            0%, 100% { transform: translateY(0px) scale(1.00); }
-            50% { transform: translateY(-6px) scale(1.05); }
+        .logo-wrapper:hover img {
+            transform: translateY(-8px) scale(1.08);
+            filter: drop-shadow(0 0 45px rgba(255,180,80,1));
         }
 
         /* --- Logo Reflection --- */
