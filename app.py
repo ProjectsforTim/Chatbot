@@ -1,44 +1,132 @@
 import streamlit as st
-import os, json, base64, textwrap, numpy as np
+import os, json, base64, textwrap, numpy as np, hashlib
 from openai import OpenAI
 
 st.set_page_config(page_title="Tim's DroneShield Chatbot", page_icon="🛡️")
 
-# ---------- UI STYLING ----------
+# ---------- CUSTOM STYLING ----------
 st.markdown("""
     <style>
         .stApp {
-            background: radial-gradient(circle at top center, rgba(255,122,0,0.9) 0%, #0D0D0D 90%);
+            background: radial-gradient(circle at top center, rgba(255,122,0,0.85) 0%, #0D0D0D 85%);
             color: white; text-align: center;
+            animation: fadeIn 1s ease-in;
+            position: relative;
+            overflow: hidden;
         }
+
+        /* --- Orange Vignette Glow --- */
+        .stApp::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at center, rgba(255,122,0,0.15) 0%, rgba(255,122,0,0.05) 40%, rgba(0,0,0,0.85) 100%);
+            box-shadow: inset 0 0 120px rgba(255,122,0,0.3);
+            z-index: 0;
+        }
+
+        /* --- Title Glow --- */
         .main-title {
             background: linear-gradient(90deg, rgba(255,122,0,1) 0%, rgba(255,102,0,0.9) 100%);
             box-shadow: 0 0 35px rgba(255,122,0,0.6);
-            color: white; font-weight: 700; font-size: 30px;
-            border-radius: 12px; display: inline-block;
-            padding: 12px 40px; margin-top: 10px;
+            color: white;
+            font-weight: 700;
+            font-size: 30px;
+            border-radius: 12px;
+            display: inline-block;
+            padding: 12px 40px;
+            margin-top: 10px;
+            transition: all 0.4s ease-in-out;
+            animation: titlePulse 4s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
         }
+
         .title-grey { color: #bfbfbf; font-weight: 600; }
         .title-black { color: #333333; font-weight: 500; }
-        .answer-card {
-            background: rgba(0,0,0,0.85); color: white;
-            border-radius: 10px; padding: 22px; text-align: left;
-            box-shadow: inset 0px 0px 15px rgba(255,122,0,0.25), 0 0 20px rgba(0,0,0,0.6);
+
+        @keyframes titlePulse {
+            0% { box-shadow: 0 0 25px rgba(255,122,0,0.4); transform: scale(1.00); }
+            50% { box-shadow: 0 0 55px rgba(255,180,80,1); transform: scale(1.03); }
+            100% { box-shadow: 0 0 25px rgba(255,122,0,0.4); transform: scale(1.00); }
         }
-        .footer { font-size: 13px; color: #d9d9d9; opacity: 0.8;
-                  margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
-        .error-box { background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.4);
-                     color: #ffaaaa; padding: 10px; border-radius: 6px;
-                     margin: 10px auto; width: 70%; }
+
+        /* --- Logo Animation --- */
+        .logo-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; margin-bottom: -10px;
+            z-index: 2;
+        }
+
+        .logo-wrapper img {
+            width: 140px;
+            transition: all 0.6s ease-in-out;
+            filter: drop-shadow(0 0 25px rgba(255,122,0,0.7));
+            animation: glowPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0% { filter: drop-shadow(0 0 20px rgba(255,122,0,0.6)); transform: scale(1.00); }
+            50% { filter: drop-shadow(0 0 45px rgba(255,180,80,1)); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 20px rgba(255,122,0,0.6)); transform: scale(1.00); }
+        }
+
+        /* --- Logo Reflection --- */
+        .logo-reflection {
+            width: 120px; height: 18px; border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(255,122,0,0.35) 0%, rgba(255,122,0,0) 70%);
+            filter: blur(8px); margin-top: -5px; opacity: 0.7;
+            transition: all 0.5s ease;
+        }
+
+        .logo-wrapper:hover .logo-reflection {
+            opacity: 0.45; transform: translateY(3px) scale(1.1);
+        }
+
+        /* --- Chat Response Card --- */
+        .answer-card {
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            border-radius: 10px;
+            padding: 22px;
+            text-align: left;
+            box-shadow: inset 0px 0px 15px rgba(255,122,0,0.25), 0 0 20px rgba(0,0,0,0.6);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- Footer Disclaimer --- */
+        .footer {
+            font-size: 13px;
+            color: #d9d9d9;
+            opacity: 0.8;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- Subtle fade-in animation for content --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------- HEADER ----------
 if os.path.exists("droneshield_logo.png"):
     encoded_logo = base64.b64encode(open("droneshield_logo.png", "rb").read()).decode()
-    st.markdown(f"<img src='data:image/png;base64,{encoded_logo}' width='140'>", unsafe_allow_html=True)
+    st.markdown(f"""
+        <div class="logo-wrapper">
+            <img src="data:image/png;base64,{encoded_logo}" />
+            <div class="logo-reflection"></div>
+        </div>
+    """, unsafe_allow_html=True)
 else:
-    st.markdown("<div class='error-box'>⚠️ Logo not found — please upload 'droneshield_logo.png'.</div>", unsafe_allow_html=True)
+    st.warning("⚠️ Logo not found — please upload 'droneshield_logo.png'.")
 
 st.markdown("<div class='main-title'>Tim's <span class='title-grey'>Drone</span><span class='title-black'>Shield</span> Chatbot</div>", unsafe_allow_html=True)
 
@@ -47,7 +135,7 @@ try:
     with open("droneshield_parsed_data.json.txt", "r", encoding="utf-8") as f:
         context_data = json.load(f)
 except Exception as e:
-    st.markdown(f"<div class='error-box'>⚠️ Could not load context: {e}</div>", unsafe_allow_html=True)
+    st.error(f"⚠️ Could not load context: {e}")
     context_data = []
 
 documents, metas = [], []
@@ -59,11 +147,8 @@ for item in context_data:
         documents.append(str(item))
         metas.append({"url": "", "title": ""})
 
-# ---------- LIGHTWEIGHT EMBEDDING (NO TORCH) ----------
-import hashlib
-
+# ---------- LIGHT EMBEDDING (no torch) ----------
 def cheap_embed(text):
-    """Lightweight embedding using hashing (avoids torch)."""
     hash_val = hashlib.sha256(text.encode("utf-8")).digest()
     return np.array([b / 255.0 for b in hash_val[:64]])
 
@@ -77,7 +162,7 @@ def retrieve(query, k=4):
 # ---------- OPENAI ----------
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    st.markdown("<div class='error-box'>⚠️ Missing OpenAI API key. Set it as 'OPENAI_API_KEY'.</div>", unsafe_allow_html=True)
+    st.error("⚠️ Missing OpenAI API key. Please set it as 'OPENAI_API_KEY'.")
 else:
     client = OpenAI(api_key=api_key)
 
@@ -109,7 +194,6 @@ else:
                 srcs.append(url)
         return text, srcs
 
-    # ---------- CHAT UI ----------
     query = st.text_input("Ask a question about DroneShield:")
     if query:
         with st.spinner("Thinking..."):
@@ -121,3 +205,4 @@ else:
                 st.write(f"- [{s}]({s})")
 
 st.markdown("<div class='footer'>⚠️ Independent personal project inspired by DroneShield. Not affiliated with or endorsed by DroneShield Ltd.</div>", unsafe_allow_html=True)
+
