@@ -1,5 +1,5 @@
 import streamlit as st
-import os, json, base64, textwrap, chromadb
+import os, json, base64, textwrap, torch
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 
@@ -135,8 +135,9 @@ else:
     documents = [str(item) for item in context_data]
     metas = [{"url": "", "title": ""} for _ in context_data]
 
-# ---------- EMBEDDING MODEL ----------
+# ---------- SAFE MODEL LOAD (FORCE CPU, NO META DEVICE) ----------
 try:
+    torch.set_default_device("cpu")
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu")
 except Exception as e:
     st.markdown(f"<div class='error-box'>⚠️ Error loading embedding model: {e}</div>", unsafe_allow_html=True)
