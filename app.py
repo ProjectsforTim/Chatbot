@@ -4,7 +4,6 @@ from openai import OpenAI
 
 st.set_page_config(page_title="Tim's DroneShield Chatbot", page_icon="🛡️")
 
-# ---------- CUSTOM STYLING ----------
 st.markdown("""
     <style>
         .stApp {
@@ -13,7 +12,6 @@ st.markdown("""
             animation: fadeIn 1s ease-in;
         }
 
-        /* --- Title Styling with Glow + Gradient --- */
         .main-title {
             background: linear-gradient(90deg, rgba(255,122,0,1) 0%, rgba(255,102,0,0.9) 100%);
             box-shadow: 0 0 35px rgba(255,122,0,0.6);
@@ -36,7 +34,6 @@ st.markdown("""
             100% { box-shadow: 0 0 25px rgba(255,122,0,0.4); transform: scale(1.00); }
         }
 
-        /* --- Hover-Animated Logo --- */
         .logo-wrapper {
             display: flex; justify-content: center; align-items: center;
             flex-direction: column; margin-bottom: -10px;
@@ -50,8 +47,7 @@ st.markdown("""
             transform: translateY(-8px) scale(1.08);
             filter: drop-shadow(0 0 45px rgba(255,180,80,1));
         }
-
-        /* --- Logo Reflection --- */
+        
         .logo-reflection {
             width: 120px; height: 18px; border-radius: 50%;
             background: radial-gradient(ellipse at center, rgba(255,122,0,0.35) 0%, rgba(255,122,0,0) 70%);
@@ -62,21 +58,18 @@ st.markdown("""
             opacity: 0.45; transform: translateY(3px) scale(1.1);
         }
 
-        /* --- Chat Response Card --- */
         .answer-card {
             background: rgba(0, 0, 0, 0.85); color: white;
             border-radius: 10px; padding: 22px; text-align: left;
             box-shadow: inset 0px 0px 15px rgba(255,122,0,0.25), 0 0 20px rgba(0,0,0,0.6);
         }
-
-        /* --- Footer Disclaimer --- */
+        
         .footer {
             font-size: 13px; color: #d9d9d9; opacity: 0.8;
             margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1);
             padding-top: 10px;
         }
 
-        /* --- Subtle fade-in animation for content --- */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -84,7 +77,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ---------- HEADER ----------
+
 if os.path.exists("droneshield_logo.png"):
     encoded_logo = base64.b64encode(open("droneshield_logo.png", "rb").read()).decode()
     st.markdown(f"""
@@ -98,7 +91,7 @@ else:
 
 st.markdown("<div class='main-title'>Tim's <span class='title-grey'>Drone</span><span class='title-black'>Shield</span> Chatbot</div>", unsafe_allow_html=True)
 
-# ---------- LOAD CONTEXT ----------
+
 try:
     with open("droneshield_parsed_data.json.txt", "r", encoding="utf-8") as f:
         context_data = json.load(f)
@@ -115,7 +108,7 @@ for item in context_data:
         documents.append(str(item))
         metas.append({"url": "", "title": ""})
 
-# ---------- LIGHT EMBEDDING (no torch) ----------
+
 def cheap_embed(text):
     hash_val = hashlib.sha256(text.encode("utf-8")).digest()
     return np.array([b / 255.0 for b in hash_val[:64]])
@@ -127,7 +120,7 @@ def retrieve(query, k=4):
     top_k = sorted(range(len(sims)), key=lambda i: sims[i], reverse=True)[:k]
     return [(documents[i], metas[i]) for i in top_k]
 
-# ---------- OPENAI ----------
+
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     st.error("⚠️ Missing OpenAI API key. Please set it as 'OPENAI_API_KEY'.")
